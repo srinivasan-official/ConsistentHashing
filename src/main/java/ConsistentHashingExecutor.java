@@ -12,9 +12,9 @@ public class ConsistentHashingExecutor {
     public static void main(String[] args) throws NoSuchAlgorithmException {
         List<ServerNode> serverNodeList = Arrays.asList(
                 new ServerNode("Server1", "10.0.0.1", 6080, 20),
-                new ServerNode("Server2", "10.0.0.1", 7080, 25),
-                new ServerNode("Server3", "10.0.0.1", 8080, 15),
-                new ServerNode("Server4", "10.0.0.1", 9080, 30));
+                new ServerNode("Server2", "10.0.0.2", 7080, 25),
+                new ServerNode("Server3", "10.0.0.3", 8080, 15),
+                new ServerNode("Server4", "10.0.0.4", 9080, 30));
 
         System.out.println("Initializing Consistent Hash based Load Balancer");
         LoadBalancer lb = new ConsistentHashRouter(new MD5Hash());
@@ -28,7 +28,6 @@ public class ConsistentHashingExecutor {
         for(int i = 0; i < 100000; i++) {
             requestIps.add(getRandomIp());
         }
-        //System.out.println("Generated IPs " + requestIps);
 
         routeIps(requestIps, lb);
     }
@@ -42,7 +41,7 @@ public class ConsistentHashingExecutor {
             map.put(serverNode, atomicInteger);
         });
         System.out.println("Server Load ratio :: ");
-        map.forEach((k,v)->System.out.println("Server: " + k.getKey() + " Load: " + v));
+        map.forEach((k,v)->System.out.println(k.getKey() + " Request Handled: " + v));
     }
 
     private static String getRandomIp() {

@@ -37,7 +37,8 @@ public class ServerNode implements Node {
 
     @Override
     public String getKey() {
-        return this.getHostname().toUpperCase().concat(":")
+        return this.getHostname().toUpperCase().concat("_")
+                .concat(this.getIp()).concat(":")
                 .concat(this.getPort().toString().toUpperCase());
     }
 }
