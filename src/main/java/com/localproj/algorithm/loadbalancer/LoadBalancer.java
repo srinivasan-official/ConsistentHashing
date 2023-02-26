@@ -1,4 +1,4 @@
-package com.localproj.algorithm;
+package com.localproj.algorithm.loadbalancer;
 
 import com.localproj.nodes.Node;
 import com.localproj.nodes.impl.ServerNode;

@@ -1,9 +1,10 @@
-package com.localproj.algorithm;
+package com.localproj.algorithm.loadbalancer.impl;
 
+import com.localproj.algorithm.loadbalancer.LoadBalancer;
 import com.localproj.hash.HashFunction;
-import com.localproj.nodes.Node;
 import com.localproj.nodes.impl.ServerNode;
 import com.localproj.nodes.impl.VirtualNode;
+import com.sun.security.ntlm.Server;
 
 import java.util.*;
 
@@ -22,6 +23,12 @@ public class ConsistentHashRouter implements LoadBalancer {
     public void addNode(ServerNode serverNode, int replicaCount) {
         List<VirtualNode<ServerNode>> vNodes = serverNodeToVirtualNodeMap.getOrDefault(serverNode,
                 new ArrayList<>());
+        createVNodes(serverNode, vNodes, replicaCount);
+        serverNodeToVirtualNodeMap.put(serverNode, vNodes);
+    }
+
+    private void createVNodes(ServerNode serverNode, List<VirtualNode<ServerNode>> vNodes,
+                              int replicaCount) {
         int size = vNodes.size();
         for(int i=size; i<size+replicaCount; i++) {
             String key = serverNode.getKey().concat("_vNode").concat(String.valueOf(i));
@@ -30,7 +37,6 @@ public class ConsistentHashRouter implements LoadBalancer {
             hashRing.put(hash, virtualNode);
             vNodes.add(virtualNode);
         }
-        serverNodeToVirtualNodeMap.put(serverNode, vNodes);
     }
 
     @Override

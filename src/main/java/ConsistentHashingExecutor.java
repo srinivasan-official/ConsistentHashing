@@ -1,5 +1,5 @@
-import com.localproj.algorithm.ConsistentHashRouter;
-import com.localproj.algorithm.LoadBalancer;
+import com.localproj.algorithm.loadbalancer.impl.ConsistentHashRouter;
+import com.localproj.algorithm.loadbalancer.LoadBalancer;
 import com.localproj.hash.impl.MD5Hash;
 import com.localproj.nodes.impl.ServerNode;
 
@@ -28,6 +28,12 @@ public class ConsistentHashingExecutor {
         for(int i = 0; i < 100000; i++) {
             requestIps.add(getRandomIp());
         }
+
+        routeIps(requestIps, lb);
+
+        ServerNode serverNode = serverNodeList.get(3);
+        System.out.println("Removing Server: " + serverNode.getKey());
+        lb.removeNode(serverNode);
 
         routeIps(requestIps, lb);
     }
