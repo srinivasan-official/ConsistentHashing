@@ -42,7 +42,7 @@ public class ConsistentHashRouter implements LoadBalancer {
     @Override
     public void removeNode(ServerNode serverNode) {
         if(!serverNodeToVirtualNodeMap.containsKey(serverNode))
-            throw new RuntimeException("Server Doesn't exists");
+            return;
         List<VirtualNode<ServerNode>> vNodes = serverNodeToVirtualNodeMap.remove(serverNode);
         vNodes.stream().map(VirtualNode::getHash).forEach(hash -> hashRing.remove(hash));
     }
