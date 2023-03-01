@@ -2,6 +2,8 @@ package com.localproj.nodes.impl;
 
 import com.localproj.nodes.Node;
 
+import java.util.concurrent.atomic.AtomicInteger;
+
 public class ServerNode implements Node {
 
     private String hostname;
@@ -10,13 +12,16 @@ public class ServerNode implements Node {
 
     private Integer port;
 
-    private Integer replicationFactor;
+    private Integer virtualNodeCount;
 
-    public ServerNode(String hostname, String ip, Integer port, Integer replicationFactor) {
+    private AtomicInteger lastNodeIndex;
+
+    public ServerNode(String hostname, String ip, Integer port, Integer virtualNodeCount) {
         this.hostname = hostname;
         this.ip = ip;
         this.port = port;
-        this.replicationFactor = replicationFactor;
+        this.virtualNodeCount = virtualNodeCount;
+        this.lastNodeIndex = new AtomicInteger(0);
     }
 
     public String getHostname() {
@@ -31,8 +36,20 @@ public class ServerNode implements Node {
         return port;
     }
 
-    public Integer getReplicationFactor() {
-        return replicationFactor;
+    public Integer getVirtualNodeCount() {
+        return virtualNodeCount;
+    }
+
+    public AtomicInteger getLastNodeIndex() {
+        return lastNodeIndex;
+    }
+
+    public void setVirtualNodeCount(Integer virtualNodeCount) {
+        this.virtualNodeCount = virtualNodeCount;
+    }
+
+    public void setLastNodeIndex(AtomicInteger lastNodeIndex) {
+        this.lastNodeIndex = lastNodeIndex;
     }
 
     @Override

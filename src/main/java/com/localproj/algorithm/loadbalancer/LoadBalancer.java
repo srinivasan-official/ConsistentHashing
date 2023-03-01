@@ -7,7 +7,7 @@ import com.localproj.nodes.impl.VirtualNode;
 import java.util.List;
 
 public interface LoadBalancer {
-    void addNode(ServerNode serverNode, int replicaCount);
+    void addNode(ServerNode serverNode);
 
     void removeNode(ServerNode serverNode);
 

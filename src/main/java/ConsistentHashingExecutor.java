@@ -20,7 +20,7 @@ public class ConsistentHashingExecutor {
         LoadBalancer lb = new ConsistentHashRouter(new MD5Hash());
 
         System.out.println("Adding Servers to Load Balancer");
-        serverNodeList.forEach(serverNode -> lb.addNode(serverNode, serverNode.getReplicationFactor()));
+        serverNodeList.forEach(serverNode -> lb.addNode(serverNode));
         System.out.println("Servers added Successfully");
 
         System.out.println("Generating 100000 IP Address for load test");

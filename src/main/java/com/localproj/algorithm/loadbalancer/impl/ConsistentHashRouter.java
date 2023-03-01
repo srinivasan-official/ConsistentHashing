@@ -4,47 +4,43 @@ import com.localproj.algorithm.loadbalancer.LoadBalancer;
 import com.localproj.hash.HashFunction;
 import com.localproj.nodes.impl.ServerNode;
 import com.localproj.nodes.impl.VirtualNode;
-import com.sun.security.ntlm.Server;
 
 import java.util.*;
+import java.util.concurrent.atomic.AtomicInteger;
 
 public class ConsistentHashRouter implements LoadBalancer {
     private TreeMap<Long, VirtualNode<ServerNode>> hashRing;
     private HashFunction hashFunction;
-    private Map<ServerNode, List<VirtualNode<ServerNode>>> serverNodeToVirtualNodeMap;
 
     public ConsistentHashRouter(HashFunction hashFunction) {
         this.hashFunction = hashFunction;
         this.hashRing = new TreeMap<>();
-        this.serverNodeToVirtualNodeMap = new HashMap<>();
     }
 
     @Override
-    public void addNode(ServerNode serverNode, int replicaCount) {
-        List<VirtualNode<ServerNode>> vNodes = serverNodeToVirtualNodeMap.getOrDefault(serverNode,
-                new ArrayList<>());
-        createVNodes(serverNode, vNodes, replicaCount);
-        serverNodeToVirtualNodeMap.put(serverNode, vNodes);
-    }
-
-    private void createVNodes(ServerNode serverNode, List<VirtualNode<ServerNode>> vNodes,
-                              int replicaCount) {
-        int size = vNodes.size();
-        for(int i=size; i<size+replicaCount; i++) {
-            String key = serverNode.getKey().concat("_vNode").concat(String.valueOf(i));
+    public void addNode(ServerNode serverNode) {
+        if(serverNode.getVirtualNodeCount() == 0)
+            throw new RuntimeException("Invalid vNode count");
+        int idx = serverNode.getLastNodeIndex().get();
+        while(idx < serverNode.getVirtualNodeCount()) {
+            String key = serverNode.getKey().concat("_vNode").concat(
+                    String.valueOf(idx));
             Long hash = hashFunction.hash(key);
-            VirtualNode<ServerNode> virtualNode = new VirtualNode<>(serverNode, i, key, hash);
+            VirtualNode<ServerNode> virtualNode = new VirtualNode<>(serverNode, idx, key, hash);
             hashRing.put(hash, virtualNode);
-            vNodes.add(virtualNode);
+            idx++;
         }
+        serverNode.getLastNodeIndex().set(idx);
     }
 
     @Override
     public void removeNode(ServerNode serverNode) {
-        if(!serverNodeToVirtualNodeMap.containsKey(serverNode))
-            return;
-        List<VirtualNode<ServerNode>> vNodes = serverNodeToVirtualNodeMap.remove(serverNode);
-        vNodes.stream().map(VirtualNode::getHash).forEach(hash -> hashRing.remove(hash));
+        for(int i=0; i<serverNode.getLastNodeIndex().intValue(); i++) {
+            String key = serverNode.getKey().concat("_vNode").concat(String.valueOf(i));
+            Long hash = hashFunction.hash(key);
+            hashRing.remove(hash);
+        }
+        serverNode.getLastNodeIndex().set(0);
     }
 
     @Override
